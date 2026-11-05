@@ -1,0 +1,43 @@
+﻿# ==========================================
+# Dependencies & Package Managers
+# ==========================================
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# ==========================================
+# Virtual Environments
+# ==========================================
+venv/
+.venv/
+env/
+ENV/
+
+# ==========================================
+# Environment Variables & Secrets
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.log
+
+# ==========================================
+# Uploads & Local Files (Keep directory structure)
+# ==========================================
+backend/uploads/*
+!backend/uploads/.gitkeep
+chroma_data/
+
+# ==========================================
+# IDE & System Files
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
