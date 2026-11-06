@@ -1,34 +1,52 @@
 ﻿"""
 Main Application Entry Point
-DocShare AI Backend - Group MM1CZR - Topic TN-102
+DocShare AI Backend
 """
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from app.routers import auth
 
 app = FastAPI(
     title="DocShare AI API",
     description="Hệ thống quản lý, chia sẻ tài nguyên học tập và tìm kiếm tài liệu thông minh ứng dụng AI",
-    version="0.1.0",
+    version="1.0.0",
 )
 
+# Cấu hình CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/", tags=["Root"])
+# Mount thư mục uploads để phục vụ tệp tĩnh (ảnh đại diện, tài liệu xem trước)
+uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+
+# Đăng ký Routers
+app.include_router(auth.router)
+
+@app.get("/", tags=["Hệ thống"])
 def root():
     return {
         "project": "DocShare AI",
-        "team": "MM1CZR",
-        "topic": "TN-102",
         "status": "Online",
         "docs_url": "/docs"
     }
 
-@app.get("/api/health", tags=["Health Check"])
+@app.get("/api/health", tags=["Hệ thống"])
 def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "service": "DocShare AI"}
