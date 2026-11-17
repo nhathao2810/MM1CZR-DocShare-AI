@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getAssetUrl } from "../services/api";
-import { BookOpen, LogOut, User as UserIcon, Shield } from "lucide-react";
+import { BookOpen, LogOut, User as UserIcon, Shield, UploadCloud } from "lucide-react";
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -33,6 +33,14 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center space-x-4">
             <Link to="/" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
               Khám phá tài liệu
+            </Link>
+
+            <Link
+              to="/upload"
+              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition flex items-center space-x-1.5"
+            >
+              <UploadCloud className="w-4 h-4 text-blue-600" />
+              <span>Đăng tài liệu</span>
             </Link>
 
             {isAuthenticated && user && user.role === "ADMIN" && (

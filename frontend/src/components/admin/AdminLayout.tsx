@@ -21,7 +21,16 @@ export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems = [
+  interface NavItem {
+    name: string;
+    path: string;
+    icon: any;
+    exact?: boolean;
+    badge?: string;
+    tagColor?: string;
+  }
+
+  const navItems: NavItem[] = [
     {
       name: "Tổng quan",
       path: "/admin",
@@ -44,8 +53,6 @@ export const AdminLayout: React.FC = () => {
       name: "Kiểm duyệt học liệu",
       path: "/admin/moderation",
       icon: FileCheck2,
-      badge: "Chặng 4",
-      tagColor: "bg-amber-100 text-amber-700",
     },
   ];
 

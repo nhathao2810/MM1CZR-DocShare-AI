@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.database import engine, Base
 import app.models  # Đăng ký toàn bộ models với Base
-from app.routers import auth, categories, admin_users
+from app.routers import auth, categories, admin_users, documents
 
 # Tự động tạo bảng trên CSDL nếu chưa tồn tại
 Base.metadata.create_all(bind=engine)
@@ -46,6 +46,7 @@ app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 app.include_router(auth.router)
 app.include_router(categories.router)
 app.include_router(admin_users.router)
+app.include_router(documents.router)
 
 @app.get("/", tags=["Hệ thống"])
 def root():

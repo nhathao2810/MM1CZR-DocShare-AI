@@ -1,6 +1,6 @@
-﻿import React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, Sparkles, Heart, FileText, Shield, Award, Terminal } from "lucide-react";
+import { BookOpen, ShieldCheck, HelpCircle, FileCheck, Mail } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (
@@ -19,16 +19,17 @@ export const Footer: React.FC = () => {
             </Link>
 
             <p className="text-slate-400 text-sm leading-relaxed pr-4">
-              Hệ thống quản lý, chia sẻ tài nguyên học tập và tìm kiếm tài liệu thông minh ứng dụng Trí tuệ nhân tạo. 
-              Nền tảng học liệu mở phục vụ sinh viên, giảng viên và cộng đồng nghiên cứu đại học.
+              Nền tảng quản lý và chia sẻ tài nguyên học tập thông minh. Kết nối sinh viên, giáo trình và tài liệu học thuật chất lượng cao.
             </p>
 
-            <div className="flex items-center space-x-2 text-xs text-slate-400 pt-2">
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-blue-400 font-medium">
-                <Sparkles className="w-3.5 h-3.5 mr-1" /> Google Gemini 1.5
+            <div className="flex items-center space-x-4 text-xs text-slate-400 pt-2">
+              <span className="inline-flex items-center space-x-1.5 text-slate-300">
+                <ShieldCheck className="w-4 h-4 text-blue-400" />
+                <span>Kiểm duyệt chất lượng</span>
               </span>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-400 font-medium">
-                <Terminal className="w-3.5 h-3.5 mr-1" /> ChromaDB Vector
+              <span className="inline-flex items-center space-x-1.5 text-slate-300">
+                <FileCheck className="w-4 h-4 text-emerald-400" />
+                <span>Tài liệu mở miễn phí</span>
               </span>
             </div>
           </div>
@@ -41,10 +42,10 @@ export const Footer: React.FC = () => {
                 <Link to="/" className="hover:text-blue-400 transition">Giáo trình & Bài giảng</Link>
               </li>
               <li>
-                <Link to="/" className="hover:text-blue-400 transition">Đề cương & Ngân hàng đề thi</Link>
+                <Link to="/" className="hover:text-blue-400 transition">Đề cương & Đề thi mẫu</Link>
               </li>
               <li>
-                <Link to="/" className="hover:text-blue-400 transition">Luận văn & Đồ án mẫu</Link>
+                <Link to="/" className="hover:text-blue-400 transition">Bài tập lớn & Đồ án</Link>
               </li>
               <li>
                 <Link to="/" className="hover:text-blue-400 transition">Tài liệu tham khảo chuyên ngành</Link>
@@ -52,40 +53,40 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Cột 4: Chuyên ngành nổi bật */}
+          {/* Cột 4: Chuyên ngành học tập */}
           <div>
-            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Chuyên ngành</h3>
+            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Danh mục chuyên ngành</h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/" className="hover:text-blue-400 transition">Công nghệ thông tin</Link>
+                <Link to="/" className="hover:text-blue-400 transition">Lập trình Web & Di động</Link>
               </li>
               <li>
-                <Link to="/" className="hover:text-blue-400 transition">Khoa học dữ liệu & Trí tuệ nhân tạo</Link>
+                <Link to="/" className="hover:text-blue-400 transition">Cơ sở dữ liệu & Hệ thống</Link>
               </li>
               <li>
-                <Link to="/" className="hover:text-blue-400 transition">Kỹ thuật phần mềm & Mạng MT</Link>
+                <Link to="/" className="hover:text-blue-400 transition">Trí tuệ nhân tạo & Học máy</Link>
               </li>
               <li>
-                <Link to="/" className="hover:text-blue-400 transition">Toán tin & Khoa học máy tính</Link>
+                <Link to="/" className="hover:text-blue-400 transition">Mạng máy tính & An toàn thông tin</Link>
               </li>
             </ul>
           </div>
 
-          {/* Cột 5: Đề tài & Tiêu chuẩn */}
+          {/* Cột 5: Quy định & Chính sách */}
           <div>
-            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Thông tin đề tài</h3>
+            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Chính sách & Hỗ trợ</h3>
             <ul className="space-y-2.5 text-sm text-slate-400">
-              <li className="flex items-start space-x-2">
-                <Shield className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                <span>Kiểm duyệt học thuật minh bạch</span>
+              <li>
+                <Link to="/" className="hover:text-blue-400 transition">Điều khoản sử dụng</Link>
               </li>
-              <li className="flex items-start space-x-2">
-                <FileText className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                <span>Trực quan hóa PDF.js bảo mật</span>
+              <li>
+                <Link to="/" className="hover:text-blue-400 transition">Chính sách bảo mật</Link>
               </li>
-              <li className="flex items-start space-x-2">
-                <Award className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                <span>Đồ án Tốt nghiệp Đại học</span>
+              <li>
+                <Link to="/" className="hover:text-blue-400 transition">Quy định bản quyền học liệu</Link>
+              </li>
+              <li>
+                <Link to="/" className="hover:text-blue-400 transition">Báo cáo vi phạm nội dung</Link>
               </li>
             </ul>
           </div>
@@ -93,9 +94,9 @@ export const Footer: React.FC = () => {
 
         {/* Dòng bản quyền cuối trang */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 space-y-4 sm:space-y-0">
-          <p>© 2026 DocShare AI. Nền tảng chia sẻ tài nguyên học tập thông minh.</p>
+          <p>© 2026 DocShare AI. Nền tảng chia sẻ và tìm kiếm học liệu số thông minh.</p>
           <p className="flex items-center space-x-1">
-            <span>Phát triển phục vụ mục tiêu học thuật & nghiên cứu khoa học</span>
+            <span>Cộng đồng học tập & chia sẻ tri thức đại học</span>
           </p>
         </div>
       </div>
