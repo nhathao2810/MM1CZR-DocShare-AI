@@ -1,4 +1,4 @@
-﻿"""
+"""
 Main Application Entry Point
 DocShare AI Backend
 """
@@ -10,7 +10,13 @@ load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.routers import auth
+
+from app.database import engine, Base
+import app.models  # Đăng ký toàn bộ models với Base
+from app.routers import auth, categories, admin_users
+
+# Tự động tạo bảng trên CSDL nếu chưa tồn tại
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="DocShare AI API",
@@ -38,6 +44,8 @@ app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 # Đăng ký Routers
 app.include_router(auth.router)
+app.include_router(categories.router)
+app.include_router(admin_users.router)
 
 @app.get("/", tags=["Hệ thống"])
 def root():

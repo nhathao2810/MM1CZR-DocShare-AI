@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getAssetUrl } from "../services/api";
@@ -34,6 +34,16 @@ export const Navbar: React.FC = () => {
             <Link to="/" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
               Khám phá tài liệu
             </Link>
+
+            {isAuthenticated && user && user.role === "ADMIN" && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-amber-800 rounded-xl text-xs font-bold border border-amber-200/80 shadow-xs transition active:scale-95"
+              >
+                <Shield className="w-3.5 h-3.5 text-amber-600" />
+                <span>Trang Quản Trị</span>
+              </Link>
+            )}
 
             {isAuthenticated && user ? (
               <div className="flex items-center space-x-3 border-l border-slate-200 pl-4">
