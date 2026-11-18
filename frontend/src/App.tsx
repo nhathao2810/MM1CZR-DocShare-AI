@@ -16,6 +16,7 @@ import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminCategories } from "./pages/admin/AdminCategories";
 import { AdminUsers } from "./pages/admin/AdminUsers";
 import { AdminModeration } from "./pages/admin/AdminModeration";
+import { AdminLogin } from "./pages/admin/AdminLogin";
 
 // Layout cho người dùng thông thường
 const ClientLayout: React.FC = () => (
@@ -63,6 +64,9 @@ export default function App() {
               }
             />
           </Route>
+
+          {/* Cổng đăng nhập Quản trị viên riêng biệt */}
+          <Route path="/admin/login" element={<AdminLogin />} />
 
           {/* Toàn bộ các trang Quản trị viên (Bảo vệ bằng AdminRoute & AdminLayout) */}
           <Route

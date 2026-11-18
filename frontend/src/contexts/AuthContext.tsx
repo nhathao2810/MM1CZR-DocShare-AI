@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { User, LoginPayload, RegisterPayload, UpdateProfilePayload } from "../types/auth";
 import { authService } from "../services/authService";
 
@@ -7,7 +7,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (data: LoginPayload) => Promise<void>;
+  login: (data: LoginPayload) => Promise<User>;
   register: (data: RegisterPayload) => Promise<void>;
   updateUser: (data: UpdateProfilePayload) => Promise<User>;
   uploadAvatar: (file: File) => Promise<string>;
@@ -42,12 +42,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const login = async (data: LoginPayload) => {
+  const login = async (data: LoginPayload): Promise<User> => {
     const res = await authService.login(data);
     localStorage.setItem("docshare_token", res.access_token);
     localStorage.setItem("docshare_user", JSON.stringify(res.user));
     setToken(res.access_token);
     setUser(res.user);
+    return res.user;
   };
 
   const register = async (data: RegisterPayload) => {

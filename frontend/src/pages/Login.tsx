@@ -1,7 +1,7 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
+import { Lock, Mail, ArrowRight, AlertCircle, Shield } from "lucide-react";
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -17,8 +17,12 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      await login({ email, password });
-      navigate("/");
+      const loggedUser = await login({ email, password });
+      if (loggedUser.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
       const msg = err.response?.data?.detail || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.";
       setError(msg);
@@ -89,11 +93,22 @@ export const Login: React.FC = () => {
           </button>
         </form>
 
-        <div className="text-center mt-6 text-sm text-slate-500">
-          Chưa có tài khoản?{" "}
-          <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-700 transition">
-            Đăng ký ngay
-          </Link>
+        <div className="text-center mt-6 text-sm text-slate-500 space-y-2">
+          <div>
+            Chưa có tài khoản?{" "}
+            <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-700 transition">
+              Đăng ký ngay
+            </Link>
+          </div>
+          <div className="pt-2 border-t border-slate-100">
+            <Link
+              to="/admin/login"
+              className="inline-flex items-center space-x-1.5 text-xs text-slate-500 hover:text-blue-600 transition"
+            >
+              <Shield className="w-3.5 h-3.5 text-slate-400" />
+              <span>Cổng đăng nhập Quản trị viên →</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

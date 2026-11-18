@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAssetUrl } from "../../services/api";
+import { moderationService } from "../../services/moderationService";
 import {
   LayoutDashboard,
   FolderTree,
@@ -20,6 +21,23 @@ export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    moderationService.getStats()
+      .then((data) => {
+        if (isMounted) {
+          setPendingCount(data.pending_count);
+        }
+      })
+      .catch(() => {
+        // Silently ignore if not authorized or network issue
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [location.pathname]);
 
   interface NavItem {
     name: string;
@@ -53,12 +71,14 @@ export const AdminLayout: React.FC = () => {
       name: "Kiểm duyệt học liệu",
       path: "/admin/moderation",
       icon: FileCheck2,
+      badge: pendingCount && pendingCount > 0 ? `${pendingCount} chờ` : undefined,
+      tagColor: "bg-amber-500/20 text-amber-300 border border-amber-500/30",
     },
   ];
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/admin/login");
   };
 
   const isActive = (path: string, exact?: boolean) => {
