@@ -3,6 +3,7 @@ import { adminService, UserFilterParams } from "../../services/adminService";
 import { User } from "../../types/auth";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAssetUrl } from "../../services/api";
+import { AdminPagination } from "../../components/admin/AdminPagination";
 import {
   Users,
   Search,
@@ -27,6 +28,10 @@ export const AdminUsers: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   // Confirmation Modals
   const [statusModal, setStatusModal] = useState<{ user: User; newStatus: "ACTIVE" | "BANNED" } | null>(null);
   const [roleModal, setRoleModal] = useState<{ user: User; newRole: "USER" | "ADMIN" } | null>(null);
@@ -42,6 +47,7 @@ export const AdminUsers: React.FC = () => {
 
       const data = await adminService.getUsers(params);
       setUsers(data);
+      setCurrentPage(1);
     } catch (err: any) {
       showNotice("error", err.response?.data?.detail || "Không thể tải danh sách thành viên");
     } finally {
@@ -92,7 +98,8 @@ export const AdminUsers: React.FC = () => {
       await adminService.updateUserRole(roleModal.user.id, roleModal.newRole);
       showNotice(
         "success",
-        `Đã cập nhật vai trò của '${roleModal.user.full_name}' thành ${roleModal.newRole === "ADMIN" ? "Quản trị viên" : "Thành viên"
+        `Đã cập nhật vai trò của '${roleModal.user.full_name}' thành ${
+          roleModal.newRole === "ADMIN" ? "Quản trị viên" : "Thành viên"
         }!`
       );
       setRoleModal(null);
@@ -104,15 +111,19 @@ export const AdminUsers: React.FC = () => {
     }
   };
 
+  // Sliced users for current page
+  const paginatedUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Notification Toast */}
       {notification && (
         <div
-          className={`p-4 rounded-xl flex items-center space-x-3 text-sm font-medium border shadow-xs animate-in fade-in duration-200 ${notification.type === "success"
+          className={`p-4 rounded-xl flex items-center space-x-3 text-sm font-medium border shadow-xs animate-in fade-in duration-200 ${
+            notification.type === "success"
               ? "bg-emerald-50 text-emerald-800 border-emerald-200"
               : "bg-red-50 text-red-800 border-red-200"
-            }`}
+          }`}
         >
           {notification.type === "success" ? (
             <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -124,38 +135,43 @@ export const AdminUsers: React.FC = () => {
       )}
 
       {/* Header Bar */}
-      <div>
-        <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center space-x-2.5">
-          <Users className="w-6 h-6 text-blue-600" />
-          <span>Quản Lý Tài Khoản Người Dùng</span>
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Giám sát danh sách thành viên, cấp quyền Quản trị viên hoặc khóa các tài khoản vi phạm chính sách học thuật.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center space-x-2.5">
+            <Users className="w-6 h-6 text-blue-600" />
+            <span>Quản Lý Tài Khoản Người Dùng</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Giám sát danh sách thành viên, cấp quyền Quản trị viên hoặc khóa các tài khoản vi phạm chính sách học thuật.
+          </p>
+        </div>
+        <div className="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg self-start sm:self-auto border border-slate-200">
+          Tổng số: <span className="font-bold text-blue-600">{users.length}</span> người dùng
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md flex items-center space-x-2">
           <div className="relative w-full">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
             <input
               type="text"
               placeholder="Tìm theo họ tên hoặc email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition"
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition shrink-0"
           >
             Tìm
           </button>
         </form>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center flex-wrap gap-2.5">
           <div className="flex items-center space-x-1.5 text-xs text-slate-500">
             <Filter className="w-3.5 h-3.5" />
             <span>Lọc:</span>
@@ -183,7 +199,7 @@ export const AdminUsers: React.FC = () => {
         </div>
       </div>
 
-      {/* Users Table */}
+      {/* Users Table Card */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         {loading ? (
           <div className="p-12 text-center">
@@ -197,131 +213,163 @@ export const AdminUsers: React.FC = () => {
             <p className="text-xs text-slate-500 mt-1">Vui lòng thử tìm kiếm với từ khóa khác.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase font-bold text-slate-500 tracking-wider">
-                <tr>
-                  <th className="px-5 py-3.5">Thành viên</th>
-                  <th className="px-5 py-3.5">Email</th>
-                  <th className="px-5 py-3.5">Vai trò</th>
-                  <th className="px-5 py-3.5">Trạng thái</th>
-                  <th className="px-5 py-3.5">Ngày tham gia</th>
-                  <th className="px-5 py-3.5 text-right">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {users.map((u) => {
-                  const isCurrentAdmin = currentAdmin?.id === u.id;
-                  return (
-                    <tr key={u.id} className="hover:bg-slate-50/70 transition">
-                      <td className="px-5 py-4">
-                        <div className="flex items-center space-x-3">
-                          {u.avatar_url ? (
-                            <img
-                              src={getAssetUrl(u.avatar_url)}
-                              alt={u.full_name}
-                              className="w-9 h-9 rounded-full object-cover border border-slate-200"
-                            />
-                          ) : (
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                              {u.full_name ? u.full_name.charAt(0).toUpperCase() : "U"}
-                            </div>
-                          )}
-                          <div>
-                            <p className="font-semibold text-slate-800 leading-tight flex items-center space-x-1.5">
-                              <span>{u.full_name}</span>
-                              {isCurrentAdmin && (
-                                <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded">
-                                  Bạn
-                                </span>
-                              )}
-                            </p>
-                            <span className="text-xs text-slate-400 font-mono">ID: {u.id.slice(0, 8)}...</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 text-xs font-mono text-slate-700">{u.email}</td>
-                      <td className="px-5 py-4">
-                        {u.role === "ADMIN" ? (
-                          <span className="inline-flex items-center space-x-1 text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                            <Shield className="w-3 h-3 text-amber-600" />
-                            <span>Quản trị viên</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center space-x-1 text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
-                            <UserCheck className="w-3 h-3 text-slate-500" />
-                            <span>Thành viên</span>
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4">
-                        {u.status === "ACTIVE" ? (
-                          <span className="inline-flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span>Hoạt động</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center space-x-1 text-xs font-semibold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                            <span>Đã khóa</span>
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 text-xs text-slate-500">
-                        {new Date(u.created_at).toLocaleDateString("vi-VN")}
-                      </td>
-                      <td className="px-5 py-4 text-right space-x-1.5 whitespace-nowrap">
-                        {/* Change Role Button */}
-                        <button
-                          onClick={() =>
-                            setRoleModal({
-                              user: u,
-                              newRole: u.role === "ADMIN" ? "USER" : "ADMIN",
-                            })
-                          }
-                          disabled={isCurrentAdmin}
-                          className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-slate-700 hover:text-blue-600 transition disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:bg-transparent disabled:hover:text-slate-700"
-                          title={
-                            isCurrentAdmin
-                              ? "Bạn không thể tự đổi vai trò của chính mình"
-                              : u.role === "ADMIN"
-                                ? "Hạ cấp về Thành viên thường"
-                                : "Thăng cấp lên Quản trị viên"
-                          }
-                        >
-                          {u.role === "ADMIN" ? "Gỡ Admin" : "Lên Admin"}
-                        </button>
+          <>
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full min-w-[960px] text-left text-sm text-slate-600">
+                <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase font-bold text-slate-500 tracking-wider">
+                  <tr>
+                    <th className="px-4 py-3.5 text-center w-14">STT</th>
+                    <th className="px-5 py-3.5">Thành viên</th>
+                    <th className="px-5 py-3.5">Email</th>
+                    <th className="px-5 py-3.5">Vai trò</th>
+                    <th className="px-5 py-3.5">Trạng thái</th>
+                    <th className="px-5 py-3.5">Ngày tham gia</th>
+                    <th className="px-5 py-3.5 text-right w-36">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedUsers.map((u, index) => {
+                    const isCurrentAdmin = currentAdmin?.id === u.id;
+                    const stt = (currentPage - 1) * pageSize + index + 1;
+                    return (
+                      <tr key={u.id} className="hover:bg-slate-50/70 transition">
+                        {/* STT */}
+                        <td className="px-4 py-4 text-center font-bold text-xs text-slate-400">
+                          {stt}
+                        </td>
 
-                        {/* Toggle Status Button */}
-                        {u.status === "ACTIVE" ? (
+                        {/* User info */}
+                        <td className="px-5 py-4">
+                          <div className="flex items-center space-x-3">
+                            {u.avatar_url ? (
+                              <img
+                                src={getAssetUrl(u.avatar_url)}
+                                alt={u.full_name}
+                                className="w-9 h-9 rounded-full object-cover border border-slate-200 shrink-0"
+                              />
+                            ) : (
+                              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+                                {u.full_name ? u.full_name.charAt(0).toUpperCase() : "U"}
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="font-semibold text-slate-800 leading-tight flex items-center space-x-1.5 truncate">
+                                <span className="truncate">{u.full_name}</span>
+                                {isCurrentAdmin && (
+                                  <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded shrink-0">
+                                    Bạn
+                                  </span>
+                                )}
+                              </p>
+                              <span className="text-xs text-slate-400 font-mono">ID: {u.id.slice(0, 8)}...</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Email */}
+                        <td className="px-5 py-4 text-xs font-mono text-slate-700">{u.email}</td>
+
+                        {/* Role */}
+                        <td className="px-5 py-4 whitespace-nowrap">
+                          {u.role === "ADMIN" ? (
+                            <span className="inline-flex items-center space-x-1 text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                              <Shield className="w-3 h-3 text-amber-600" />
+                              <span>Quản trị viên</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center space-x-1 text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                              <UserCheck className="w-3 h-3 text-slate-500" />
+                              <span>Thành viên</span>
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-5 py-4 whitespace-nowrap">
+                          {u.status === "ACTIVE" ? (
+                            <span className="inline-flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                              <span>Hoạt động</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center space-x-1 text-xs font-semibold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                              <span>Đã khóa</span>
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Created At */}
+                        <td className="px-5 py-4 text-xs text-slate-500 whitespace-nowrap">
+                          {new Date(u.created_at).toLocaleDateString("vi-VN")}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-5 py-4 text-right space-x-1.5 whitespace-nowrap">
+                          {/* Change Role Button */}
                           <button
-                            onClick={() => setStatusModal({ user: u, newStatus: "BANNED" })}
+                            onClick={() =>
+                              setRoleModal({
+                                user: u,
+                                newRole: u.role === "ADMIN" ? "USER" : "ADMIN",
+                              })
+                            }
                             disabled={isCurrentAdmin}
-                            className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-40 disabled:hover:text-slate-500 disabled:hover:bg-transparent"
+                            className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-slate-700 hover:text-blue-600 transition disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:bg-transparent disabled:hover:text-slate-700"
                             title={
                               isCurrentAdmin
-                                ? "Không thể tự khóa tài khoản của chính mình"
-                                : "Khóa tài khoản người dùng này"
+                                ? "Bạn không thể tự đổi vai trò của chính mình"
+                                : u.role === "ADMIN"
+                                ? "Hạ cấp về Thành viên thường"
+                                : "Thăng cấp lên Quản trị viên"
                             }
                           >
-                            <Lock className="w-4 h-4" />
+                            {u.role === "ADMIN" ? "Gỡ Admin" : "Lên Admin"}
                           </button>
-                        ) : (
-                          <button
-                            onClick={() => setStatusModal({ user: u, newStatus: "ACTIVE" })}
-                            className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
-                            title="Mở khóa tài khoản người dùng này"
-                          >
-                            <Unlock className="w-4 h-4" />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+
+                          {/* Toggle Status Button */}
+                          {u.status === "ACTIVE" ? (
+                            <button
+                              onClick={() => setStatusModal({ user: u, newStatus: "BANNED" })}
+                              disabled={isCurrentAdmin}
+                              className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-40 disabled:hover:text-slate-500 disabled:hover:bg-transparent"
+                              title={
+                                isCurrentAdmin
+                                  ? "Không thể tự khóa tài khoản của chính mình"
+                                  : "Khóa tài khoản người dùng này"
+                              }
+                            >
+                              <Lock className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setStatusModal({ user: u, newStatus: "ACTIVE" })}
+                              className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+                              title="Mở khóa tài khoản người dùng này"
+                            >
+                              <Unlock className="w-4 h-4" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            <AdminPagination
+              currentPage={currentPage}
+              totalItems={users.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setCurrentPage(1);
+              }}
+            />
+          </>
         )}
       </div>
 
@@ -364,16 +412,17 @@ export const AdminUsers: React.FC = () => {
                 type="button"
                 onClick={handleConfirmStatus}
                 disabled={actionLoading}
-                className={`px-5 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition disabled:opacity-50 ${statusModal.newStatus === "BANNED"
+                className={`px-5 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition disabled:opacity-50 ${
+                  statusModal.newStatus === "BANNED"
                     ? "bg-red-600 hover:bg-red-700"
                     : "bg-emerald-600 hover:bg-emerald-700"
-                  }`}
+                }`}
               >
                 {actionLoading
                   ? "Đang xử lý..."
                   : statusModal.newStatus === "BANNED"
-                    ? "Khóa tài khoản"
-                    : "Mở khóa ngay"}
+                  ? "Khóa tài khoản"
+                  : "Mở khóa ngay"}
               </button>
             </div>
           </div>
@@ -426,4 +475,3 @@ export const AdminUsers: React.FC = () => {
     </div>
   );
 };
-

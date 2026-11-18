@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { categoryService } from "../../services/categoryService";
 import { Category, CategoryCreatePayload, CategoryUpdatePayload } from "../../types/category";
+import { AdminPagination } from "../../components/admin/AdminPagination";
 import {
   FolderTree,
   Plus,
@@ -18,6 +19,10 @@ export const AdminCategories: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -61,6 +66,12 @@ export const AdminCategories: React.FC = () => {
   const filteredCategories = categories.filter((cat) =>
     cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     cat.slug.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Paginated slice
+  const paginatedCategories = filteredCategories.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   // Handle Create
@@ -197,7 +208,10 @@ export const AdminCategories: React.FC = () => {
             type="text"
             placeholder="Tìm theo tên hoặc slug môn học..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
           />
         </div>
@@ -220,58 +234,79 @@ export const AdminCategories: React.FC = () => {
             <p className="text-xs text-slate-500 mt-1">Hãy bấm "Thêm môn học mới" để tạo danh mục đầu tiên.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase font-bold text-slate-500 tracking-wider">
-                <tr>
-                  <th className="px-5 py-3.5">ID</th>
-                  <th className="px-5 py-3.5">Tên môn học</th>
-                  <th className="px-5 py-3.5">Đường dẫn (Slug)</th>
-                  <th className="px-5 py-3.5">Mô tả</th>
-                  <th className="px-5 py-3.5 text-right">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredCategories.map((cat) => (
-                  <tr key={cat.id} className="hover:bg-slate-50/70 transition">
-                    <td className="px-5 py-4 font-bold text-slate-700">#{cat.id}</td>
-                    <td className="px-5 py-4">
-                      <div className="font-semibold text-slate-800 flex items-center space-x-2">
-                        <span className="p-1 bg-blue-50 text-blue-600 rounded">
-                          <BookOpen className="w-3.5 h-3.5" />
-                        </span>
-                        <span>{cat.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <code className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono">
-                        {cat.slug}
-                      </code>
-                    </td>
-                    <td className="px-5 py-4 max-w-xs truncate text-xs text-slate-500" title={cat.description || ""}>
-                      {cat.description || <span className="italic text-slate-400">Chưa có mô tả</span>}
-                    </td>
-                    <td className="px-5 py-4 text-right space-x-1 whitespace-nowrap">
-                      <button
-                        onClick={() => handleOpenEdit(cat)}
-                        className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                        title="Chỉnh sửa môn học"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleOpenDelete(cat)}
-                        className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                        title="Xóa môn học"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
+          <>
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full min-w-[850px] text-left text-sm text-slate-600">
+                <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase font-bold text-slate-500 tracking-wider">
+                  <tr>
+                    <th className="px-4 py-3.5 text-center w-14">STT</th>
+                    <th className="px-5 py-3.5 w-16">ID</th>
+                    <th className="px-5 py-3.5">Tên môn học</th>
+                    <th className="px-5 py-3.5">Đường dẫn (Slug)</th>
+                    <th className="px-5 py-3.5">Mô tả</th>
+                    <th className="px-5 py-3.5 text-right w-28">Thao tác</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedCategories.map((cat, index) => {
+                    const stt = (currentPage - 1) * pageSize + index + 1;
+                    return (
+                      <tr key={cat.id} className="hover:bg-slate-50/70 transition">
+                        <td className="px-4 py-4 text-center font-bold text-xs text-slate-400">
+                          {stt}
+                        </td>
+                        <td className="px-5 py-4 font-bold text-slate-700">#{cat.id}</td>
+                        <td className="px-5 py-4">
+                          <div className="font-semibold text-slate-800 flex items-center space-x-2">
+                            <span className="p-1 bg-blue-50 text-blue-600 rounded">
+                              <BookOpen className="w-3.5 h-3.5" />
+                            </span>
+                            <span>{cat.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4">
+                          <code className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono">
+                            {cat.slug}
+                          </code>
+                        </td>
+                        <td className="px-5 py-4 max-w-xs truncate text-xs text-slate-500" title={cat.description || ""}>
+                          {cat.description || <span className="italic text-slate-400">Chưa có mô tả</span>}
+                        </td>
+                        <td className="px-5 py-4 text-right space-x-1 whitespace-nowrap">
+                          <button
+                            onClick={() => handleOpenEdit(cat)}
+                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            title="Chỉnh sửa môn học"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleOpenDelete(cat)}
+                            className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                            title="Xóa môn học"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <AdminPagination
+              currentPage={currentPage}
+              totalItems={filteredCategories.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setCurrentPage(1);
+              }}
+            />
+          </>
         )}
       </div>
 

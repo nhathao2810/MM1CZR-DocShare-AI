@@ -14,6 +14,8 @@ import {
   Menu,
   X,
   BookOpen,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 export const AdminLayout: React.FC = () => {
@@ -21,11 +23,13 @@ export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    moderationService.getStats()
+    moderationService
+      .getStats()
       .then((data) => {
         if (isMounted) {
           setPendingCount(data.pending_count);
@@ -108,22 +112,29 @@ export const AdminLayout: React.FC = () => {
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-200 transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:inset-auto md:min-h-screen flex flex-col ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-50 bg-slate-900 text-slate-200 transform transition-all duration-200 ease-in-out md:translate-x-0 md:static md:inset-auto md:min-h-screen flex flex-col ${
+          mobileMenuOpen ? "translate-x-0 w-64" : "-translate-x-full md:translate-x-0"
+        } ${sidebarCollapsed ? "md:w-20" : "md:w-64"}`}
       >
         {/* Brand Header */}
-        <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
-          <Link to="/admin" className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-xl shadow-md">
+        <div
+          className={`px-4 py-5 border-b border-slate-800 flex items-center ${
+            sidebarCollapsed ? "justify-center" : "justify-between"
+          }`}
+        >
+          <Link to="/admin" className="flex items-center space-x-3 overflow-hidden">
+            <div className="p-2 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-xl shadow-md shrink-0">
               <Shield className="w-5 h-5" />
             </div>
-            <div>
-              <div className="font-extrabold text-base tracking-tight text-white flex items-center space-x-1.5">
-                <span>DocShare</span>
-                <span className="text-blue-400">AI</span>
+            {!sidebarCollapsed && (
+              <div className="truncate">
+                <div className="font-extrabold text-base tracking-tight text-white flex items-center space-x-1.5">
+                  <span>DocShare</span>
+                  <span className="text-blue-400">AI</span>
+                </div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Trang Quản Trị</p>
               </div>
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Trang Quản Trị</p>
-            </div>
+            )}
           </Link>
           <button
             onClick={() => setMobileMenuOpen(false)}
@@ -135,9 +146,11 @@ export const AdminLayout: React.FC = () => {
 
         {/* Navigation Items */}
         <div className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
-          <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Menu Quản Trị
-          </div>
+          {!sidebarCollapsed && (
+            <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Menu Quản Trị
+            </div>
+          )}
 
           {navItems.map((item) => {
             const active = isActive(item.path, item.exact);
@@ -147,24 +160,32 @@ export const AdminLayout: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${active
+                title={sidebarCollapsed ? item.name : undefined}
+                className={`flex items-center ${
+                  sidebarCollapsed ? "justify-center px-2 py-3" : "justify-between px-3.5 py-2.5"
+                } rounded-xl text-sm font-medium transition-all ${
+                  active
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/30 font-semibold"
                     : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                  }`}
+                }`}
               >
                 <div className="flex items-center space-x-3">
-                  <Icon className={`w-4 h-4 ${active ? "text-white" : "text-slate-400"}`} />
-                  <span>{item.name}</span>
+                  <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-slate-400"}`} />
+                  {!sidebarCollapsed && <span className="truncate">{item.name}</span>}
                 </div>
-                {item.badge && (
+                {!sidebarCollapsed && item.badge && (
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${active
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                      active
                         ? "bg-blue-700 text-blue-100"
                         : item.tagColor || "bg-slate-800 text-slate-300"
-                      }`}
+                    }`}
                   >
                     {item.badge}
                   </span>
+                )}
+                {sidebarCollapsed && item.badge && (
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400"></span>
                 )}
               </Link>
             );
@@ -175,50 +196,75 @@ export const AdminLayout: React.FC = () => {
         <div className="p-3 border-t border-slate-800 space-y-2">
           <Link
             to="/"
-            className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition"
+            title="Quay về trang người dùng"
+            className={`flex items-center ${
+              sidebarCollapsed ? "justify-center px-2 py-2.5" : "space-x-2 px-3 py-2"
+            } rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition`}
           >
-            <ArrowLeft className="w-4 h-4 text-slate-400" />
-            <span>Quay về trang người dùng</span>
+            <ArrowLeft className="w-4 h-4 text-slate-400 shrink-0" />
+            {!sidebarCollapsed && <span>Quay về trang sinh viên</span>}
           </Link>
 
-          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between px-2">
+          <div
+            className={`pt-2 border-t border-slate-800/80 flex items-center ${
+              sidebarCollapsed ? "justify-center" : "justify-between px-2"
+            }`}
+          >
             <div className="flex items-center space-x-2.5 overflow-hidden">
               {user?.avatar_url ? (
                 <img
                   src={getAssetUrl(user.avatar_url)}
                   alt={user.full_name}
-                  className="w-8 h-8 rounded-full object-cover border border-slate-700"
+                  className="w-8 h-8 rounded-full object-cover border border-slate-700 shrink-0"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
                   {user?.full_name ? user.full_name.charAt(0).toUpperCase() : "A"}
                 </div>
               )}
-              <div className="truncate">
-                <p className="text-xs font-semibold text-white truncate">{user?.full_name}</p>
-                <p className="text-[10px] text-amber-400 font-medium">Quản trị viên</p>
-              </div>
+              {!sidebarCollapsed && (
+                <div className="truncate">
+                  <p className="text-xs font-semibold text-white truncate">{user?.full_name}</p>
+                  <p className="text-[10px] text-amber-400 font-medium">Quản trị viên</p>
+                </div>
+              )}
             </div>
 
-            <button
-              onClick={handleLogout}
-              title="Đăng xuất"
-              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            {!sidebarCollapsed && (
+              <button
+                onClick={handleLogout}
+                title="Đăng xuất"
+                className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 max-w-full overflow-hidden">
         {/* Top Header Bar */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3.5 hidden md:flex items-center justify-between sticky top-0 z-30 shadow-xs">
-          <div className="flex items-center space-x-2 text-xs font-medium text-slate-600">
-            <span className="text-slate-400">DocShare AI</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-700 font-semibold">Cổng Quản Trị Hệ Thống</span>
+        <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 hidden md:flex items-center justify-between sticky top-0 z-30 shadow-xs">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+              title={sidebarCollapsed ? "Mở rộng thanh menu" : "Thu gọn thanh menu"}
+            >
+              {sidebarCollapsed ? (
+                <PanelLeftOpen className="w-4 h-4 text-slate-600" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4 text-slate-600" />
+              )}
+            </button>
+
+            <div className="flex items-center space-x-2 text-xs font-medium text-slate-600">
+              <span className="text-slate-400">DocShare AI</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-slate-700 font-semibold">Cổng Quản Trị Hệ Thống</span>
+            </div>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -237,7 +283,7 @@ export const AdminLayout: React.FC = () => {
         </header>
 
         {/* Render child pages */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-5 lg:p-6 overflow-y-auto overflow-x-hidden min-w-0">
           <Outlet />
         </main>
       </div>
@@ -252,4 +298,3 @@ export const AdminLayout: React.FC = () => {
     </div>
   );
 };
-
