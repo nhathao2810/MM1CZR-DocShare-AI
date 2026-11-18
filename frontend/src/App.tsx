@@ -11,6 +11,7 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Profile } from "./pages/Profile";
 import { Upload } from "./pages/Upload";
+import { MyDocuments } from "./pages/MyDocuments";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminCategories } from "./pages/admin/AdminCategories";
 import { AdminUsers } from "./pages/admin/AdminUsers";
@@ -50,6 +51,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Upload />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-documents"
+              element={
+                <ProtectedRoute>
+                  <MyDocuments />
                 </ProtectedRoute>
               }
             />

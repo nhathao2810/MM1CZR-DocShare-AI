@@ -41,3 +41,9 @@ export interface DocumentUploadPayload {
   file: File;
 }
 
+export interface MyDocStats {
+  total_uploaded: number;
+  pending_count: number;
+  approved_count: number;
+  rejected_count: number;
+}

@@ -237,10 +237,10 @@ export const Upload: React.FC = () => {
                 Tải lên tài liệu khác
               </button>
               <Link
-                to="/"
-                className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition"
+                to="/my-documents"
+                className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition flex items-center justify-center"
               >
-                Về trang chủ
+                Xem tài liệu của tôi
               </Link>
             </div>
           </div>
